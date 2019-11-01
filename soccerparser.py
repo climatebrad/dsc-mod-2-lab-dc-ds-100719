@@ -5,6 +5,7 @@ from soccerparser import SoccerParser
 
 sp = SoccerParser('database.sqlite')
 sp.parse()
+results = sp.results_df
 """
 
 import numpy as np
@@ -27,9 +28,14 @@ class SoccerParser:
         """Main function."""
         self._load_matches()
         self._load_teams()
+        self._load_goals()
+
+    def _load_goals(self):
+        """Loads total goals scored by each team into results_df."""
+        self.results_df['goals'] = self.results_df.team.apply(self.total_goals)
 
     def _load_teams(self):
-        """Loads list of teams into teams."""
+        """Loads list of teams into teams and results_df."""
         self.teams = list(np.unique(self.match_df[["HomeTeam", "AwayTeam"]].values.ravel('F')))
         self.results_df = pd.DataFrame(self.teams, columns=['team'])
 
@@ -52,6 +58,6 @@ class SoccerParser:
 
     def total_goals(self, team):
         """returns total goals scored by team"""
-        home_goals = game_goals(self.match_df, team, 'H')
-        away_goals = game_goals(self.match_df, team, 'A')
+        home_goals = self.game_goals(team, 'H')
+        away_goals = self.game_goals(team, 'A')
         return home_goals.append(away_goals).sum()
