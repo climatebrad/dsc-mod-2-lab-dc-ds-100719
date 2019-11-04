@@ -144,6 +144,7 @@ class SoccerParser:
         for team in self.teams:
             self._load_team_matches(team)
         self.match_df['result_int'] = self.match_df.result.apply(winloss_to_int)
+        self.match_df['unixtime'] = self.match_df.date.apply(lambda row: row.timestamp())
 
 
 # Team goals
